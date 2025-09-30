@@ -1,0 +1,11 @@
+<div id="main">
+  <div id="todo-list">
+    @for (todo of todos(); track todo.id) {
+      <div>
+        {{ todo.title }}
+        <button (click)="update(todo)">Update</button>
+        <button (click)="delete(todo.id)">Delete</button>
+      </div>
+    }
+  </div>
+</div>

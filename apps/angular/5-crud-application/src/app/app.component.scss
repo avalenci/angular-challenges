@@ -1,0 +1,15 @@
+#main {
+    padding: 2rem;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+#todo-list {
+    border: 1px solid black;
+    padding: 1rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    overflow-y: auto;
+}

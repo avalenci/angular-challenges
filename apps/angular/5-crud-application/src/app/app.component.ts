@@ -1,49 +1,45 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
-import { randText } from '@ngneat/falso';
+import {
+  Component,
+  inject,
+  OnInit,
+  signal,
+  WritableSignal,
+} from '@angular/core';
+import { ToDo } from './interfaces/ToDo';
+import { ToDoService } from './services/to-do.service';
 
 @Component({
   imports: [],
   selector: 'app-root',
-  template: `
-    @for (todo of todos; track todo.id) {
-      {{ todo.title }}
-      <button (click)="update(todo)">Update</button>
-    }
-  `,
-  styles: [],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
-  private http = inject(HttpClient);
+  private toDoService = inject(ToDoService);
 
-  todos!: any[];
+  todos: WritableSignal<ToDo[]> = signal([]);
 
   ngOnInit(): void {
-    this.http
-      .get<any[]>('https://jsonplaceholder.typicode.com/todos')
-      .subscribe((todos) => {
-        this.todos = todos;
-      });
+    this.toDoService.getToDos().subscribe((todos: ToDo[]) => {
+      this.todos.set(todos);
+    });
   }
 
-  update(todo: any) {
-    this.http
-      .put<any>(
-        `https://jsonplaceholder.typicode.com/todos/${todo.id}`,
-        JSON.stringify({
-          todo: todo.id,
-          title: randText(),
-          body: todo.body,
-          userId: todo.userId,
-        }),
-        {
-          headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-          },
-        },
-      )
-      .subscribe((todoUpdated: any) => {
-        this.todos[todoUpdated.id - 1] = todoUpdated;
+  update(todo: ToDo) {
+    this.toDoService.updateToDo(todo).subscribe((todoUpdated: any) => {
+      this.todos.update((todos) => {
+        const temp = [...todos];
+        temp[todoUpdated.id - 1] = todoUpdated;
+        return temp;
       });
+    });
+  }
+
+  delete(todoId: number) {
+    this.toDoService.deleteToDo(todoId).subscribe(() => {
+      this.todos.update((todos) => {
+        return todos.filter((todo: ToDo) => todo.id !== todoId);
+      });
+    });
   }
 }
