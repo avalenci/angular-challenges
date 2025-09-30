@@ -29,7 +29,8 @@ export class AppComponent implements OnInit {
     this.toDoService.updateToDo(todo).subscribe((todoUpdated: any) => {
       this.todos.update((todos) => {
         const temp = [...todos];
-        temp[todoUpdated.id - 1] = todoUpdated;
+        const i = temp.findIndex((todo: ToDo) => todo.id === todoUpdated.id);
+        temp[i] = todoUpdated;
         return temp;
       });
     });
